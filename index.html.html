@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de militaire du rang - Niveau de débauche</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
+            background-color: #2d2d2d;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .description {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #cccccc;
+        }
+
+        .question {
+            background-color: #3d3d3d;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        select {
+            width: 150px;
+            padding: 5px;
+            border-radius: 3px;
+            background-color: #ffffff;
+            color: #000000;
+        }
+
+        button {
+            display: block;
+            margin: 30px auto 0;
+            padding: 10px 20px;
+            background-color: #4a4a4a;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #5a5a5a;
+        }
+
+        .result {
+            display: none;
+            background-color: #3d3d3d;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        .result h2 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .result p {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Test de militaire du rang - Niveau de débauche</h1>
+        <p class="description">Répondez aux questions pour déterminer votre niveau de débauche militaire.</p>
+
+        <div id="questions-container">
+            <!-- Les questions seront générées par JavaScript -->
+        </div>
+
+        <button id="verify-button">Vérifier les réponses</button>
+
+        <div id="result-container" class="result">
+            <h2>Résultat</h2>
+            <p>Score : <span id="score">0</span>/20</p>
+            <p>Niveau : <span id="level">Civil</span></p>
+            <p id="description"></p>
+        </div>
+    </div>
+
+    <script>
+        // Données : questions, réponses possibles et réponse correcte
+        const questions = [
+            {
+                "question": "T'es-tu déjà pris une diagonale ?",
+                "reponses": ["Oui", "Non"],
+                "reponse_correcte": "Oui"
+            },
+            {
+                "question": "Popote 3 soirs ou + dans la semaine ?",
+                "reponses": ["Oui", "Non"],
+                "reponse_correcte": "Oui"
+            },
+            {
+                "question": "Es-tu adèpte du ME",
+                "reponses": ["Oui", "Non"],
+                "reponse_correcte": "Oui"
+            },
+            {
+                "question": "Tu préfères :",
+                "reponses": ["Avoir une femme, un gosse", "Etre célibataire"],
+                "reponse_correcte": "Etre célibataire"
+            },
+            {
+                "question": "Sais-tu résoudre une équation du second degré ?",
+                "reponses": ["Oui", "Non"],
+                "reponse_correcte": "Non"
+            },
+            {
+                "question": "Soirée tranquille ou cataclysme ?",
+                "reponses": ["Soirée tranquille", "cataclysme"],
+                "reponse_correcte": "cataclysme"
+            },
+            {
+                "question": "T'es-tu déja rendu au lieu-dit Le Mistral ?",
+                "reponses": ["Oui", "Non"],
+                "reponse_correcte": "Oui"
+            },
+            {
+                "question": "Es-tu déja allé aux putes ?",
+                "reponses": ["Oui", "Non"],
+                "reponse_correcte": "Oui"
+            },
+            {
+                "question": "As-tu deja pris du trou ?",
+                "reponses": ["Oui", "Non"],
+                "reponse_correcte": "Oui"
+            },
+            {
+                "question": "As-tu déja vomis dans ton lit après une soirée trop arrosée ?",
+                "reponses": ["Oui", "Non"],
+                "reponse_correcte": "Oui"
+            },
+            {
+                "question": "As-tu déjà couché en mission ?",
+                "reponses": ["Oui", "Non"],
+                "reponse_correcte": "Oui"
+            },
+            {
+                "question": "As-tu déjà pris un arrêt de complaisance ?",
+                "reponses": ["Oui", "Non"],
+                "reponse_correcte": "Oui"
+            },
+            {
+                "question": "Es-tu un gros raciste ?",
+                "reponses": ["Oui", "Non"],
+                "reponse_correcte": "Oui"
+            },
+            {
+                "question": "Possèdes-tu une vaginette ?",
+                "reponses": ["Oui", "Non"],
+                "reponse_correcte": "Oui"
+            },
+            {
+                "question": "T'es-tu déjà BR devant un pote ou dans un duvet ?",
+                "reponses": ["Oui", "Non"],
+                "reponse_correcte": "Oui"
+            },
+            {
+                "question": "As-tu déjà endommagé du matériel militaire ?",
+                "reponses": ["Oui", "Non"],
+                "reponse_correcte": "Oui"
+            },
+            {
+                "question": "As-tu déjà fais rentré une meuf dans le coffre ?",
+                "reponses": ["Oui", "Non"],
+                "reponse_correcte": "Oui"
+            },
+            {
+                "question": "T'es-tu déjà pris une CBF ?",
+                "reponses": ["Oui", "Non"],
+                "reponse_correcte": "Oui"
+            },
+            {
+                "question": "As-tu déja voulu enclencher un supérieur ?",
+                "reponses": ["Oui", "Non"],
+                "reponse_correcte": "Oui"
+            },
+            {
+                "question": "Es-tu dans ton grade actuel depuis + de 4 ans ?",
+                "reponses": ["Oui", "Non"],
+                "reponse_correcte": "Oui"
+            }
+        ];
+
+        // Fonction pour déterminer le niveau de fdp
+        function getNiveau(score) {
+            if (score == 20) return "GOD";
+            if (score >= 18) return "Légendaire";
+            if (score >= 17) return "Master";
+            if (score >= 15) return "Challenger";
+            if (score >= 12) return "Or";
+            if (score >= 10) return "Argent";
+            if (score >= 5) return "Bronze";
+            if (score < 5) return "Civil";
+            return "Neant";
+        }
+
+        // Fonction pour vérifier toutes les réponses
+        function verifierReponses() {
+            let bonnesReponses = 0;
+
+            for (let i = 0; i < questions.length; i++) {
+                const q = questions[i];
+                const reponse = document.getElementById(`question-${i}`).value;
+                if (reponse === q.reponse_correcte) {
+                    bonnesReponses++;
+                }
+            }
+
+            // Déterminer le niveau
+            const niveau = getNiveau(bonnesReponses);
+
+            // Afficher les résultats
+            document.getElementById("score").textContent = bonnesReponses;
+            document.getElementById("level").textContent = niveau;
+
+            let description = "";
+            description += "- Bronze : 5 bonnes réponses<br>";
+            description += "- Argent : 10 bonnes réponses<br>";
+            description += "- Or : 12 bonnes réponses<br>";
+            description += "- Challenger : 15 bonnes réponses<br>";
+            description += "- Master : 17 bonnes réponses<br>";
+            description += "- Légendaire : 18 bonnes réponses<br>";
+            description += "- GOD : 20 bonnes réponses";
+
+            document.getElementById("description").innerHTML = description;
+
+            document.getElementById("result-container").style.display = "block";
+        }
+
+        // Générer les questions
+        function generateQuestions() {
+            const container = document.getElementById("questions-container");
+
+            questions.forEach((q, i) => {
+                const questionDiv = document.createElement("div");
+                questionDiv.className = "question";
+
+                const questionText = document.createElement("div");
+                questionText.innerHTML = `<span class="question-number">${i+1}.</span> ${q.question}`;
+
+                const select = document.createElement("select");
+                select.id = `question-${i}`;
+
+                q.reponses.forEach(reponse => {
+                    const option = document.createElement("option");
+                    option.value = reponse;
+                    option.textContent = reponse;
+                    select.appendChild(option);
+                });
+
+                questionDiv.appendChild(questionText);
+                questionDiv.appendChild(select);
+                container.appendChild(questionDiv);
+            });
+        }
+
+        // Initialisation
+        document.addEventListener("DOMContentLoaded", function() {
+            generateQuestions();
+            document.getElementById("verify-button").addEventListener("click", verifierReponses);
+        });
+    </script>
+</body>
+</html>
