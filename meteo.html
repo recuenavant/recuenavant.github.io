@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -14,7 +15,7 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            color: #333;
+            color: white;
         }
         .container {
             background-color: white;
@@ -27,7 +28,7 @@
             position: relative;
         }
         h1 {
-            color: #2c3e50;
+            color: white;
             text-align: center;
             margin-bottom: 30px;
         }
@@ -45,7 +46,7 @@
             box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
         }
         button {
-            background-color: #3498db;
+            background-color: black;
             color: white;
             border: none;
             padding: 12px 20px;
@@ -56,7 +57,7 @@
             transition: background-color 0.3s;
         }
         button:hover {
-            background-color: #2980b9;
+            background-color: grey;
         }
         .suggestions {
             margin-top: 10px;
@@ -96,6 +97,7 @@
         .weather-details p {
             margin: 8px 0;
             font-size: 16px;
+            color:#000000
         }
         .error {
             color: #e74c3c;
@@ -103,11 +105,11 @@
             font-weight: 500;
         }
         .geo-button {
-            background-color: #2ecc71;
+            background-color: #055fae;
             margin-top: 10px;
         }
         .geo-button:hover {
-            background-color: #27ae60;
+            background-color: #055fae;
         }
         .loading {
             text-align: center;
@@ -116,7 +118,7 @@
         .spinner {
             border: 4px solid rgba(0, 0, 0, 0.1);
             border-radius: 50%;
-            border-top: 4px solid #3498db;
+            border-top: 4px solid grey;
             width: 30px;
             height: 30px;
             animation: spin 1s linear infinite;
@@ -171,7 +173,7 @@
             const geoButton = document.getElementById('geoButton');
             const loadingElement = document.getElementById('loading');
 
-            const apiKey = '483a8d59c1934776adc160756261105 '; // Clé
+            const apiKey = '483a8d59c1934776adc160756261105 '; // Clé API WeatherAPI
 
             searchButton.addEventListener('click', function() {
                 const city = cityInput.value.trim();
