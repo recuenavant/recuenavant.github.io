@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculateur de jours restants</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #000000;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type="date"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e9f8ff;
+            border-radius: 4px;
+            font-weight: bold;
+            text-align: center;
+            display: none;
+        }
+
+        .error {
+            color: red;
+            margin-top: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Calculateur de jours restants</h1>
+
+        <div class="input-group">
+            <label for="startDate">Date de début :</label>
+            <input type="date" id="startDate" required>
+        </div>
+
+        <div class="input-group">
+            <label for="endDate">Date de fin :</label>
+            <input type="date" id="endDate" required>
+        </div>
+
+        <div class="input-group">
+            <label for="selectedDate">Date sélectionnée :</label>
+            <input type="date" id="selectedDate" required>
+        </div>
+
+        <div id="error" class="error"></div>
+
+        <button onclick="calculateRemaining()">Calculer les jours restants</button>
+
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        function calculateRemaining() {
+            const startDate = new Date(document.getElementById('startDate').value);
+            const endDate = new Date(document.getElementById('endDate').value);
+            const selectedDate = new Date(document.getElementById('selectedDate').value);
+            const errorDiv = document.getElementById('error');
+            const resultDiv = document.getElementById('result');
+
+            // Réinitialiser les messages
+            errorDiv.style.display = 'none';
+            resultDiv.style.display = 'none';
+
+            // Validation des dates
+            if (!startDate || !endDate || !selectedDate) {
+                errorDiv.textContent = 'Veuillez sélectionner toutes les dates';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            if (startDate > endDate) {
+                errorDiv.textContent = 'La date de début doit être avant la date de fin';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            if (selectedDate < startDate || selectedDate > endDate) {
+                errorDiv.textContent = 'La date sélectionnée doit être dans l\'intervalle';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            // Calcul des jours
+            const totalDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+            const daysPassed = Math.ceil((selectedDate - startDate) / (1000 * 60 * 60 * 24));
+            const daysRemaining = totalDays - daysPassed;
+            const percentage = (daysRemaining / totalDays) * 100;
+
+            // Afficher le résultat
+            resultDiv.textContent = `Il reste ${daysRemaining} jours (${percentage.toFixed(2)}% des jours restants)`;
+            resultDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
