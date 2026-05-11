@@ -3,30 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Météo Locale</title>
+    <title>Météo Locale avec WeatherAPI</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
             margin: 0;
             padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
+            color: #333;
         }
         .container {
             background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 30px;
             width: 100%;
             max-width: 600px;
             margin-bottom: 20px;
+            position: relative;
         }
         h1 {
-            color: #333;
+            color: #2c3e50;
             text-align: center;
+            margin-bottom: 30px;
         }
         .input-group {
             display: flex;
@@ -34,69 +37,100 @@
             margin-bottom: 20px;
         }
         input {
-            padding: 10px;
+            padding: 12px;
             border: 1px solid #ddd;
-            border-radius: 5px;
+            border-radius: 6px;
             font-size: 16px;
             margin-bottom: 10px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
         }
         button {
-            background-color: #4CAF50;
+            background-color: #3498db;
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
+            padding: 12px 20px;
+            border-radius: 6px;
             cursor: pointer;
             font-size: 16px;
+            font-weight: 500;
+            transition: background-color 0.3s;
         }
         button:hover {
-            background-color: #45a049;
+            background-color: #2980b9;
         }
         .suggestions {
             margin-top: 10px;
             display: flex;
             flex-wrap: wrap;
-            gap: 5px;
+            gap: 8px;
         }
         .suggestion {
-            background-color: #e0e0e0;
-            padding: 5px 10px;
-            border-radius: 5px;
+            background-color: #ecf0f1;
+            padding: 8px 12px;
+            border-radius: 20px;
             cursor: pointer;
             font-size: 14px;
+            transition: background-color 0.3s;
         }
         .suggestion:hover {
-            background-color: #c0c0c0;
+            background-color: #dfe2e4;
         }
         .weather-info {
             display: none;
             margin-top: 20px;
+            text-align: center;
         }
         .weather-info.active {
             display: block;
         }
         .weather-icon {
-            width: 100px;
-            height: 100px;
+            width: 120px;
+            height: 120px;
             margin: 0 auto;
             display: block;
         }
         .weather-details {
             margin-top: 20px;
+            text-align: left;
         }
         .weather-details p {
-            margin: 5px 0;
+            margin: 8px 0;
+            font-size: 16px;
         }
         .error {
-            color: red;
+            color: #e74c3c;
             margin-top: 10px;
+            font-weight: 500;
         }
         .geo-button {
-            background-color: #2196F3;
+            background-color: #2ecc71;
             margin-top: 10px;
         }
         .geo-button:hover {
-            background-color: #1976D2;
+            background-color: #27ae60;
+        }
+        .loading {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid #3498db;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .credit {
+            font-size: 12px;
+            color: #7f8c8d;
+            text-align: center;
+            margin-top: 20px;
         }
     </style>
 </head>
@@ -105,22 +139,14 @@
     <div class="container">
         <div class="input-group">
             <input type="text" id="cityInput" placeholder="Entrez le nom d'une ville">
-            <div class="suggestions" id="suggestions">
-                <div class="suggestion" onclick="setCity('Paris')">Paris</div>
-                <div class="suggestion" onclick="setCity('Lyon')">Lyon</div>
-                <div class="suggestion" onclick="setCity('Marseille')">Marseille</div>
-                <div class="suggestion" onclick="setCity('Toulouse')">Toulouse</div>
-                <div class="suggestion" onclick="setCity('Nice')">Nice</div>
-                <div class="suggestion" onclick="setCity('Bordeaux')">Bordeaux</div>
-                <div class="suggestion" onclick="setCity('Strasbourg')">Strasbourg</div>
-                <div class="suggestion" onclick="setCity('Montpellier')">Montpellier</div>
-                <div class="suggestion" onclick="setCity('Nantes')">Nantes</div>
-                <div class="suggestion" onclick="setCity('Lille')">Lille</div>
-            </div>
             <button id="searchButton">Rechercher</button>
             <button id="geoButton" class="geo-button">Utiliser ma position</button>
         </div>
         <div id="error" class="error"></div>
+        <div id="loading" class="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>Chargement de la météo...</p>
+        </div>
         <div id="weatherInfo" class="weather-info">
             <h2 id="cityName"></h2>
             <img id="weatherIcon" class="weather-icon" src="" alt="Icône météo">
@@ -129,9 +155,13 @@
                 <p><strong>Humidité:</strong> <span id="humidity"></span>%</p>
                 <p><strong>Vent:</strong> <span id="windSpeed"></span> km/h</p>
                 <p><strong>Conditions:</strong> <span id="weatherCondition"></span></p>
-                <p><strong>Lever du soleil:</strong> <span id="sunrise"></span></p>
-                <p><strong>Coucher du soleil:</strong> <span id="sunset"></span></p>
+                <p><strong>Pression:</strong> <span id="pressure"></span> hPa</p>
+                <p><strong>Visibilité:</strong> <span id="visibility"></span> km</p>
+                <p><strong>UV Index:</strong> <span id="uvIndex"></span></p>
             </div>
+        </div>
+        <div class="credit">
+            Données fournies par <a href="https://www.weatherapi.com/" target="_blank">WeatherAPI</a>
         </div>
     </div>
 
@@ -142,9 +172,10 @@
             const weatherInfo = document.getElementById('weatherInfo');
             const errorElement = document.getElementById('error');
             const geoButton = document.getElementById('geoButton');
+            const loadingElement = document.getElementById('loading');
 
-            // Remplacez par votre clé API OpenWeatherMap
-            const apiKey = 'e189c60897266f198e7b4de6f51c0b6d';
+            // Remplacez par votre clé API WeatherAPI (gratuit)
+            const apiKey = '483a8d59c1934776adc160756261105 '; // Obtenez-la sur https://www.weatherapi.com/
 
             searchButton.addEventListener('click', function() {
                 const city = cityInput.value.trim();
@@ -157,6 +188,10 @@
 
             geoButton.addEventListener('click', function() {
                 if (navigator.geolocation) {
+                    loadingElement.style.display = 'block';
+                    errorElement.textContent = '';
+                    weatherInfo.classList.remove('active');
+
                     navigator.geolocation.getCurrentPosition(
                         function(position) {
                             const lat = position.coords.latitude;
@@ -164,6 +199,7 @@
                             fetchWeatherByCoords(lat, lon);
                         },
                         function(error) {
+                            loadingElement.style.display = 'none';
                             errorElement.textContent = 'Impossible d\'obtenir votre position';
                         }
                     );
@@ -180,17 +216,14 @@
             function fetchWeather(city) {
                 errorElement.textContent = '';
                 weatherInfo.classList.remove('active');
+                loadingElement.style.display = 'block';
 
-                const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city},FR&units=metric&lang=fr&appid=${apiKey}`;
+                const apiUrl = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${city}&lang=fr`;
 
                 fetch(apiUrl)
                     .then(response => {
                         if (!response.ok) {
-                            if (response.status === 404) {
-                                throw new Error('Ville non trouvée en France. Vérifiez l\'orthographe ou essayez une autre ville.');
-                            } else {
-                                throw new Error('Erreur de connexion à l\'API.');
-                            }
+                            throw new Error('Ville non trouvée. Vérifiez l\'orthographe.');
                         }
                         return response.json();
                     })
@@ -198,15 +231,13 @@
                         displayWeather(data);
                     })
                     .catch(error => {
+                        loadingElement.style.display = 'none';
                         errorElement.textContent = error.message;
                     });
             }
 
             function fetchWeatherByCoords(lat, lon) {
-                errorElement.textContent = '';
-                weatherInfo.classList.remove('active');
-
-                const apiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&lang=fr&appid=${apiKey}`;
+                const apiUrl = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${lat},${lon}&lang=fr`;
 
                 fetch(apiUrl)
                     .then(response => response.json())
@@ -214,38 +245,38 @@
                         displayWeather(data);
                     })
                     .catch(error => {
+                        loadingElement.style.display = 'none';
                         errorElement.textContent = 'Impossible d\'obtenir la météo pour votre position';
                     });
             }
 
             function displayWeather(data) {
+                loadingElement.style.display = 'none';
+                weatherInfo.classList.add('active');
+
                 const cityName = document.getElementById('cityName');
                 const temperature = document.getElementById('temperature');
                 const humidity = document.getElementById('humidity');
                 const windSpeed = document.getElementById('windSpeed');
                 const weatherCondition = document.getElementById('weatherCondition');
                 const weatherIcon = document.getElementById('weatherIcon');
-                const sunrise = document.getElementById('sunrise');
-                const sunset = document.getElementById('sunset');
+                const pressure = document.getElementById('pressure');
+                const visibility = document.getElementById('visibility');
+                const uvIndex = document.getElementById('uvIndex');
 
-                cityName.textContent = `${data.name}, ${data.sys.country}`;
+                cityName.textContent = `${data.location.name}, ${data.location.country}`;
 
-                // Convertir les timestamps en heures locales
-                const sunriseTime = new Date(data.sys.sunrise * 1000).toLocaleTimeString();
-                const sunsetTime = new Date(data.sys.sunset * 1000).toLocaleTimeString();
-
-                temperature.textContent = Math.round(data.main.temp);
-                humidity.textContent = data.main.humidity;
-                windSpeed.textContent = Math.round(data.wind.speed * 3.6); // Convertir m/s en km/h
-                weatherCondition.textContent = data.weather[0].description;
-                sunrise.textContent = sunriseTime;
-                sunset.textContent = sunsetTime;
+                temperature.textContent = data.current.temp_c;
+                humidity.textContent = data.current.humidity;
+                windSpeed.textContent = data.current.wind_kph;
+                weatherCondition.textContent = data.current.condition.text;
+                pressure.textContent = data.current.pressure_mb;
+                visibility.textContent = data.current.vis_km;
+                uvIndex.textContent = data.current.uv;
 
                 // Afficher l'icône météo
-                const iconCode = data.weather[0].icon;
-                weatherIcon.src = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
-
-                weatherInfo.classList.add('active');
+                const iconUrl = `https://cdn.weatherapi.com/weather/${data.current.condition.icon.replace('64x64', '128x128')}`;
+                weatherIcon.src = iconUrl;
             }
         });
     </script>
